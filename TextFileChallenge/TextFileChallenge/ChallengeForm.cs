@@ -8,8 +8,7 @@ namespace TextFileChallenge
 {
     public partial class ChallengeForm : Form
     {
-        private readonly string path =
-            @"F:\GitHub\WeeklyChallange\TextFileChallenge\TextFileChallenge\AdvancedDataSet.csv";
+        private readonly string path = @"..\..\..\TextFileChallenge\AdvancedDataSet.csv";
 
         private readonly BindingList<UserModel> users = new BindingList<UserModel>();
 
@@ -59,7 +58,7 @@ namespace TextFileChallenge
         {
             var userProperties = users.Select(u =>
             {
-                var arr = new string[4];
+                var arr = new string[propertyNamesOrder.Length];
                 arr[GetPropertyIndex(nameof(UserModel.FirstName))] = u.FirstName;
                 arr[GetPropertyIndex(nameof(UserModel.LastName))] = u.LastName;
                 arr[GetPropertyIndex(nameof(UserModel.Age))] = u.Age.ToString();
