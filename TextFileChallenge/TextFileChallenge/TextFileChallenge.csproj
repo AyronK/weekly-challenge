@@ -57,6 +57,8 @@
     <Compile Include="UserModel.cs" />
     <EmbeddedResource Include="ChallengeForm.resx">
       <DependentUpon>ChallengeForm.cs</DependentUpon>
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>ChallengeForm1.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

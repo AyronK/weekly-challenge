@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -9,9 +8,12 @@ namespace TextFileChallenge
 {
     public partial class ChallengeForm : Form
     {
+        private readonly string path =
+            @"F:\GitHub\WeeklyChallange\TextFileChallenge\TextFileChallenge\AdvancedDataSet.csv";
+
         private readonly BindingList<UserModel> users = new BindingList<UserModel>();
-        private Dictionary<string, int> propertiesOrderInFile = new Dictionary<string, int>();
-        private string path = @"F:\GitHub\WeeklyChallange\TextFileChallenge\TextFileChallenge\AdvancedDataSet.csv";
+
+        private string[] propertyNamesOrder;
 
         public ChallengeForm()
         {
@@ -20,27 +22,27 @@ namespace TextFileChallenge
             WireUpDropDown();
         }
 
+        private int GetPropertyIndex(string propertyName)
+        {
+            return Array.IndexOf(propertyNamesOrder, propertyName);
+        }
+
         private void InitializeUsers()
         {
-            string[] textLines = File.ReadLines(path).ToArray();
+            var textLines = File.ReadLines(path).ToArray();
 
-            string[] propertyNames = textLines[0].Split(',');
+            propertyNamesOrder = textLines[0].Split(',');
 
-            foreach (var propertyName in propertyNames)
-            {
-                propertiesOrderInFile.Add(propertyName, Array.IndexOf(propertyNames, propertyName));
-            }
-
-            string[][] usersProperties = textLines.Skip(1).Select(l => l.Split(',')).ToArray();
+            var usersProperties = textLines.Skip(1).Select(l => l.Split(',')).ToArray();
 
             foreach (var userProperties in usersProperties)
             {
                 var userModel = new UserModel
                 {
-                    FirstName = userProperties[propertiesOrderInFile[nameof(UserModel.FirstName)]],
-                    LastName = userProperties[propertiesOrderInFile[nameof(UserModel.LastName)]],
-                    Age = int.Parse(userProperties[propertiesOrderInFile[nameof(UserModel.Age)]]),
-                    IsAlive = userProperties[propertiesOrderInFile[nameof(UserModel.IsAlive)]] != "0",
+                    FirstName = userProperties[GetPropertyIndex(nameof(UserModel.FirstName))],
+                    LastName = userProperties[GetPropertyIndex(nameof(UserModel.LastName))],
+                    Age = int.Parse(userProperties[GetPropertyIndex(nameof(UserModel.Age))]),
+                    IsAlive = userProperties[GetPropertyIndex(nameof(UserModel.IsAlive))] != "0"
                 };
 
                 users.Add(userModel);
@@ -58,17 +60,17 @@ namespace TextFileChallenge
             var userProperties = users.Select(u =>
             {
                 var arr = new string[4];
-                arr[propertiesOrderInFile[nameof(UserModel.FirstName)]] = u.FirstName;
-                arr[propertiesOrderInFile[nameof(UserModel.LastName)]] = u.LastName;
-                arr[propertiesOrderInFile[nameof(UserModel.Age)]] = u.Age.ToString();
-                arr[propertiesOrderInFile[nameof(UserModel.IsAlive)]] = u.IsAlive ? "1" : "0";
+                arr[GetPropertyIndex(nameof(UserModel.FirstName))] = u.FirstName;
+                arr[GetPropertyIndex(nameof(UserModel.LastName))] = u.LastName;
+                arr[GetPropertyIndex(nameof(UserModel.Age))] = u.Age.ToString();
+                arr[GetPropertyIndex(nameof(UserModel.IsAlive))] = u.IsAlive ? "1" : "0";
                 return arr;
             });
 
             using (var fs = File.OpenWrite(path))
             using (var sw = new StreamWriter(fs))
             {
-                sw.Write(string.Join(",", propertiesOrderInFile.OrderBy(p => p.Value).Select(p => p.Key)));
+                sw.Write(string.Join(",", propertyNamesOrder));
                 sw.Write(Environment.NewLine);
                 foreach (var userProperty in userProperties)
                 {
@@ -77,14 +79,14 @@ namespace TextFileChallenge
                 }
             }
 
-            MessageBox.Show("yay");
+            MessageBox.Show("Saved!");
         }
 
         private void addUserButton_Click(object sender, EventArgs e)
         {
             users.Add(new UserModel
             {
-                Age = (int)agePicker.Value,
+                Age = (int) agePicker.Value,
                 LastName = lastNameText.Text,
                 FirstName = firstNameText.Text,
                 IsAlive = isAliveCheckbox.Checked
